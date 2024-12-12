@@ -17,24 +17,19 @@ def reduce_ns(ns, ops):
     return v
 
 def works(goal, ns, ops, i) -> bool:
-    print(f'Operators: {lmap(lambda x : 'x' if x == 1 else "+", ops)}')
     if reduce_ns(ns, ops) == goal:
         return True
     if i >= len(ops):
         return False
     if works(goal, ns, ops, i+1):
         return True
-    ops_2 = ops.copy()
-    ops_2[i] = 1
-    return works(goal, ns, ops_2, i+1)
+    ops[i] = 1
+    return works(goal, ns, ops, i+1)
 
 def ct_achievable(eqns, reduce_fn, n_ops=2):
     tot = 0
     for goal, ns in eqns:
         # call fn to backtrack on changing + to *
-        # ops = np.zeros(len(ns) - 1, dtype=int)
-        # if works(goal, ns, ops, 0):
-        #     tot += goal
         for ops in mesh(*([n_ops] * (len(ns) - 1))):
             if reduce_fn(ns, ops) == goal:
                 tot += goal
