@@ -6,6 +6,8 @@ import itertools as it
 import re
 import operator as op
 from abc import *
+from heapq import *
+from copy import deepcopy
 
 npa = np.asarray
 
