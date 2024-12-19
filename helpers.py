@@ -8,6 +8,8 @@ import operator as op
 from abc import *
 from heapq import *
 from copy import deepcopy
+from contextlib import contextmanager
+import sys, os
 
 npa = np.asarray
 
@@ -28,14 +30,15 @@ def grid_neighbors(pt):
     x, y = pt
     return [(x+1, y), (x-1,y), (x,y+1), (x,y-1)]
 
-def bounds(arr : np.ndarray):
+def arr_bounds(arr : np.ndarray):
     return set(mesh(*arr.shape))
 
-class search(ABC):
-
-    def __init__(self, neighbor_fn):
-        self.nfn = neighbor_fn
-    
-    @abstractmethod
-    def find(self, start, target):
-        pass
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = old_stdout

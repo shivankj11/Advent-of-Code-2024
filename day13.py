@@ -17,7 +17,8 @@ button_pushes = sorted(list(mesh(101, 101)), key=lambda x : 3 * x[0] + x[1])
 tokens = 0
 for a, b, p in machines:
     for pusha, pushb in button_pushes:
-        if pusha * a[0] + pushb * b[0] == p[0] and pusha * a[1] + pushb * b[1] == p[1]:
+        if (pusha * a[0] + pushb * b[0] == p[0] and
+            pusha * a[1] + pushb * b[1] == p[1]):
             tokens += 3 * pusha + pushb
             break
 

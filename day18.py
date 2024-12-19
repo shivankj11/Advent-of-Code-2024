@@ -8,7 +8,7 @@ falling = npa(falling)
 
 # pt1
 A = np.zeros((71, 71))
-bounds = bounds(A)
+bounds = arr_bounds(A)
 for x,y in falling[:1024]:
     A[x,y] = 1
 

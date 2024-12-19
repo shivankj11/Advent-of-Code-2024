@@ -4,7 +4,7 @@ with open('day17_input.txt', 'r') as f:
     text = f.read().strip()
 
 A = npa(lmap(partial(lmap, identity), text.split('\n')))
-bounds = bounds(A)
+bounds = arr_bounds(A)
 start = tuple(npa(np.where(A == 'S')).T[0])
 
 # pt1

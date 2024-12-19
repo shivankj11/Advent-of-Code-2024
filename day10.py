@@ -5,7 +5,7 @@ with open('day10_input.txt', 'r') as f:
 
 A = npa([lmap(int, list(line)) for line in text.split('\n')])
 rows, cols = A.shape
-bounds = list(mesh(rows, cols))
+bounds = arr_bounds(A)
 
 def bfs(neighbor_fn, pt) -> int:
     q = [pt]

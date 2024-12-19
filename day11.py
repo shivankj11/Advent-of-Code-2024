@@ -1,5 +1,4 @@
 from helpers import *
-import gc
 
 stones = [814, 1183689, 0, 1, 766231, 4091, 93836, 46]
 
@@ -13,90 +12,20 @@ def rule(n) -> Union[int, Tuple[int, int]]:
  
 # pt1
 def get_k(stones, k=25):
+    cts = {v : 1 for v in stones}
     for _ in range(k):
-        news = []
-        for stone in stones:
+        new_cts = {}
+        for stone in cts:
             new = rule(stone)
             if type(new) == int:
-                news.append(new)
+                new_cts[new] = new_cts.get(new, 0) + cts[stone]
             else:
-                news.append(new[0])
-                news.append(new[1])
-        stones = news
-    return stones
+                new_cts[new[0]] = new_cts.get(new[0], 0) + cts[stone]
+                new_cts[new[1]] = new_cts.get(new[1], 0) + cts[stone]
+        cts = new_cts
+    return sum(cts.values())
 
-res1 = get_k(stones)
-print(len(res1))
+print(get_k(stones))
 
 # pt2
-def map_k(n):
-    if n in stone_map_25:
-        L = stone_map_25[n]
-    else:
-        L = [n]
-        for i in range(25):
-            new = []
-            for stone in L:
-                n = rule(stone)
-                if type(n) == int:
-                    new.append(n)
-                else:
-                    new.append(n[0])
-                    new.append(n[1])
-            L = new
-    print('Done 25')
-    L_done = []
-    L2 = []
-    for n in L:
-        if n in stone_map_25:
-            L_done.extend(stone_map_25[n])
-        else:
-            L2.append(n)
-    gc.collect()
-    for _ in range(25):
-        new = []
-        for stone in L2:
-            n = rule(stone)
-            if type(n) == int:
-                new.append(n)
-            else:
-                new.append(n[0])
-                new.append(n[1])
-        L2 = new
-    print('Done 50')
-    L = []
-    tot = 0
-    for n in L2:
-        if n in stone_map_25:
-            tot += len(stone_map_25[n])
-        else:
-            L.append(n)
-    for n in L_done:
-        if n in stone_map_25:
-            tot += len(stone_map_25[n])
-        else:
-            L.append(n)
-    gc.collect()
-    for _ in range(25):
-        new = []
-        for stone in L:
-            n = rule(stone)
-            if type(n) == int:
-                new.append(n)
-            else:
-                new.append(n[0])
-                new.append(n[1])
-        L = new
-    print('Done', n)
-    return len(L) + tot
-    
-stone_map_25 = {}
-for i in range(100):
-    stone_map_25[i] = get_k([i], k=25)
-    print('here')
-
-# tot = []
-# for stone in stones:
-#     tot.append(map_k(stone))
-#     print(tot)
-
+print(get_k(stones, k=75))
