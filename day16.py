@@ -1,6 +1,6 @@
 from helpers import *
 
-with open('day17_input.txt', 'r') as f:
+with open('day16_input.txt', 'r') as f:
     text = f.read().strip()
 
 A = npa(lmap(partial(lmap, identity), text.split('\n')))
@@ -22,14 +22,7 @@ def search(start) -> int:
         if A[pt] == 'E':
             return prio
         # add move forward
-        if direction == 0:
-            step = (x, y+1)
-        elif direction == 1:
-            step = (x+1, y)
-        elif direction == 2:
-            step = (x, y-1)
-        else:
-            step = (x-1, y)
+        step = grid_step(x, y, direction)
         if (step, direction) not in seen and step in bounds and A[step] != '#':
             seen.add((step, direction))
             heappush(q, (prio+1, (step, direction)))
@@ -67,14 +60,7 @@ def search2(start) -> int:
                 tiles_on_best.add(tile)
             continue
         # add move forward
-        if direction == 0:
-            step = (x, y+1)
-        elif direction == 1:
-            step = (x+1, y)
-        elif direction == 2:
-            step = (x, y-1)
-        else:
-            step = (x-1, y)
+        step = grid_step(x, y, direction)
         new_pos = (step, direction)
         if (new_pos not in seen or seen[new_pos] >= prio + 1) and step in bounds and A[step] != '#':
             seen[new_pos] = prio+1

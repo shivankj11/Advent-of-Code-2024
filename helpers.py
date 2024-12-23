@@ -3,6 +3,7 @@ from functools import *
 import numpy as np
 from typing import *
 import itertools as it
+import time
 import re
 import operator as op
 from abc import *
@@ -32,6 +33,17 @@ def grid_neighbors(pt):
 
 def arr_bounds(arr : np.ndarray):
     return set(mesh(*arr.shape))
+
+def grid_step(x : int, y : int, direction : int):
+    """ Direction 0 = E, 1 = S, 2 = W, 3 = N """
+    if direction == 0:
+        return (x, y+1)
+    elif direction == 1:
+        return (x+1, y)
+    elif direction == 2:
+        return (x, y-1)
+    else:
+        return (x-1, y)
 
 @contextmanager
 def suppress_stdout():
