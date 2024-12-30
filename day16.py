@@ -5,8 +5,7 @@ with open('day16_input.txt', 'r') as f:
 
 A = npa(lmap(partial(lmap, identity), text.split('\n')))
 bounds = arr_bounds(A)
-start = tuple(npa(np.where(A == 'S')).T[0])
-
+start = arr_find(A)('S')
 # pt1
 def search(start) -> int:
     """

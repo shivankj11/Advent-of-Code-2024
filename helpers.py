@@ -31,8 +31,18 @@ def grid_neighbors(pt):
     x, y = pt
     return [(x+1, y), (x-1,y), (x,y+1), (x,y-1)]
 
-def arr_bounds(arr : np.ndarray):
+def arr_bounds(arr : np.ndarray) -> Set[Tuple]:
     return set(mesh(*arr.shape))
+
+def arr_border_2d(arr : np.ndarray) -> Set[Tuple]:
+    rows, cols = arr.shape
+    f = lambda pt : 0 < pt[0] < rows-1 and 0 < pt[1] < cols-1
+    return set(it.filterfalse(f, arr_bounds(arr)))
+
+def arr_find(arr : np.ndarray) -> Callable[Any, Any]:
+    def find(e):
+        return tuple(npa(np.where(arr == e)).T[0])
+    return find
 
 def grid_step(x : int, y : int, direction : int):
     """ Direction 0 = E, 1 = S, 2 = W, 3 = N """
@@ -54,3 +64,6 @@ def suppress_stdout():
             yield
         finally:
             sys.stdout = old_stdout
+
+def np_search_sequence(a, seq):
+    return np.where(reduce(op.and_, ((np.concatenate([(a == s)[i:], np.zeros(i, dtype=np.uint8)],dtype=np.uint8)) for i,s in enumerate(seq))))[0]

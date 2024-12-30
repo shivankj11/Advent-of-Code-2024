@@ -3,30 +3,6 @@ from helpers import *
 with open('day15_input.txt', 'r') as f:
     text = f.read().strip()
 
-text = '''
-##########
-#..O..O.O#
-#......O.#
-#.OO..O.O#
-#..O@..O.#
-#O#..O...#
-#O..O..O.#
-#.OO.O.OO#
-#....O...#
-##########
-
-<vv>^<v^>v>^vv^v>v<>v^v<v<^vv<<<^><<><>>v<vvv<>^v^>^<<<><<v<<<v^vv^v>^
-vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
-><>vv>v^v^<>><>>>><^^>vv>v<^^^>>v^v^<^^>v^^>v^<^v>v<>>v^v^<v>v^^<^^vv<
-<<v<^>>^^^^>>>v^<>vvv^><v<<<>^^^vv^<vvv>^>v<^^^^v<>^>vvvv><>>v^<<^^^^^
-^><^><>>><>^^<<^^v>>><^<v>^<vv>>v>>>^v><>^v><<<<v>>v<v<v>vvv>^<><<>^><
-^>><>^v<><^vvv<^^<><v<<<<<><^v<<<><<<^^<v<^^^><^>>^<v^><<<^>>^v<v^v<v^
->^>>^v>vv>^<<^v<>><<><<v<<v><>v<^vv<<<>^^v^>^^>>><<^v>>v^v><^^>>^<>vv^
-<><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
-^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
-v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
-'''.strip()
-
 maptext, movetext = text.split('\n\n')
 A = npa(lmap(list, maptext.splitlines()))
 dir_map = {'>' : 0, 'v' : 1, '<' : 2, '^' : 3}
@@ -105,10 +81,13 @@ for direction in moves:
                     if A2[bx+1, by] == '#':
                         blocked = True
                 if not blocked:
+                    seen = set()
                     for box in boxes[::-1]:
-                        bx, by = box
-                        A2[bx+1, by] = A2[box]
-                        A2[box] = '.'
+                        if box not in seen:
+                            bx, by = box
+                            A2[bx+1, by] = A2[box]
+                            A2[box] = '.'
+                            seen.add(box)
                     x, y = step
             else : # up
                 boxes = [step]
@@ -138,14 +117,14 @@ for direction in moves:
                     if A2[bx-1, by] == '#':
                         blocked = True
                 if not blocked:
+                    seen = set()
                     for box in boxes[::-1]:
-                        bx, by = box
-                        A2[bx-1, by] = A2[box]
-                        A2[box] = '.'
+                        if box not in seen:
+                            bx, by = box
+                            A2[bx-1, by] = A2[box]
+                            A2[box] = '.'
+                            seen.add(box)
                     x, y = step
-    A2[x,y] = '@'
-    print(A2)
-    A2[x,y] = '.'
 
 res2 = sum(100 * x + y for x, y in npa(np.where(A2 == '[')).T)
 print(res2)
