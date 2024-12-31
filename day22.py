@@ -20,7 +20,6 @@ print(f'Part 1:', sum(map(sim, nums)))
 
 
 # pt2
-nums = [1, 2, 3, 2024]
 def get_seqs(nums) -> np.ndarray:
     A = np.empty((len(nums), 2001), dtype=int)
     for i in range(len(nums)):
@@ -35,8 +34,21 @@ def get_seqs(nums) -> np.ndarray:
             n %= 16777216
             A[i,j] = n % 10
     changes = np.diff(A)
-    seqs = set()
-    [seqs.add(tuple(v)) for L in changes for v in sw(L, 4)]
-    return changes, seqs
+    seqs = {tuple(v) for L in changes for v in sw(L, 4)}
+    return A, changes, seqs
 
-seqs = 
+A, changes, seqs = get_seqs(nums)
+best_banana = 0
+ct = 0
+for seq in seqs:
+    curr = 0
+    for i in range(len(changes)):
+        line = changes[i]
+        sell_time = find_seq(line, seq) + 4
+        if sell_time.size:
+            curr += A[i][sell_time[0]]
+    best_banana = max(best_banana, curr)
+    ct += 1
+    print(f'Progress: {ct} / {len(seqs)}', end='\r')
+
+print(f'\nPart 2: {best_banana}')

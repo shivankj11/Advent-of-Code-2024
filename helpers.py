@@ -1,6 +1,7 @@
 from collections import *
 from functools import *
 import numpy as np
+from numpy.lib.stride_tricks import sliding_window_view as sw
 from typing import *
 import itertools as it
 import time
@@ -65,5 +66,6 @@ def suppress_stdout():
         finally:
             sys.stdout = old_stdout
 
-def np_search_sequence(a, seq):
-    return np.where(reduce(op.and_, ((np.concatenate([(a == s)[i:], np.zeros(i, dtype=np.uint8)],dtype=np.uint8)) for i,s in enumerate(seq))))[0]
+def find_seq(A, seq):
+    """ Returns indices of seq in A"""
+    return np.where(reduce(op.and_, ((np.concatenate([(A == s)[i:], np.zeros(i, dtype=np.uint8)],dtype=np.uint8)) for i,s in enumerate(seq))))[0]

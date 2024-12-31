@@ -83,6 +83,10 @@ codes = ['029A', '980A', '179A', '456A', '379A'] # example
 # 231564 pt 1 answer
 def getbest(mpairs : Dict[str, int], first : str) -> Dict[str, int]:
     print(f'BEFORE:', mpairs)
+    directional = npa([
+    ['X', '^', 'A'],
+    ['<', 'v', '>']
+    ])
     pair = {('A', '<') : 'v<<', ('A', '^') : '<', ('A', 'v') : 'v<',
             ('A', '>') : 'v', ('^', 'A') : '>', ('^', '<') : 'v<',
             ('^', '>') : 'v>', ('^', 'v') : 'v', ('<', 'v') : '>',
