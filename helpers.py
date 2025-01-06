@@ -40,7 +40,7 @@ def arr_border_2d(arr : np.ndarray) -> Set[Tuple]:
     f = lambda pt : 0 < pt[0] < rows-1 and 0 < pt[1] < cols-1
     return set(it.filterfalse(f, arr_bounds(arr)))
 
-def arr_find(arr : np.ndarray) -> Callable[Any, Any]:
+def arr_find(arr : np.ndarray) -> Callable:
     def find(e):
         return tuple(npa(np.where(arr == e)).T[0])
     return find

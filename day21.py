@@ -12,29 +12,41 @@ directional = npa([
     ['X', '^', 'A'],
     ['<', 'v', '>']
 ])
-def verify_k(moves, k=2) -> str:
-    x, y = arr_find(directional)('A')
-    for _ in range(k):
-        moves_new = []
-        for move in moves:
-            match move:
-                case '<': y -= 1
-                case '>': y += 1
-                case 'v': x += 1
-                case '^': x -= 1
-                case _: moves_new.append(directional[x, y])
-        moves = moves_new
-    x, y = arr_find(numeric)('A')
-    code = ''
+pair_map = {
+        ('A', '<') : 'v<<', ('A', '^') : '<', ('A', 'v') : '<v',
+        ('A', '>') : 'v', ('^', 'A') : '>', ('^', '<') : 'v<',
+        ('^', '>') : 'v>', ('^', 'v') : 'v', ('<', 'v') : '>',
+        ('<', '^') : '>^', ('<', '>') : '>>', ('<', 'A') : '>>^',
+        ('v', '<') : '<', ('v', '>') : '>', ('v', '^') : '^',
+        ('v', 'A') : '^>', ('>', '<') : '<<', ('>', 'v') : '<',
+        ('>', 'A') : '^', ('>', '^') : '<^', ('^', 'v') : 'v',
+        ('^', '>') : 'v>', ('^', 'A') : '>', ('v', 'v') : '',
+        ('A', 'A') : '', ('^', '^') : '', ('<', '<') : '', ('>', '>') : '',    
+}
+def move_to_button(moves : Iterable[str], keypad : np.ndarray[str]) -> str:
+    """
+        INPUTS:
+            moves : Sequence of strings representing moves on the directional keypad
+            keypad : 2D array representing the target keypad layout
+        
+        RETURNS:
+            A string of the buttons pressed on given keypad by the given sequence of moves on the directional keypad
+    """
+    x, y = arr_find(keypad)('A')
+    buttons = []
     for move in moves:
         match move:
             case '<': y -= 1
             case '>': y += 1
             case 'v': x += 1
             case '^': x -= 1
-            case _: code += numeric[x, y]
-    return code
+            case _: buttons.append(keypad[x, y])
+    return buttons
 
+def verify(moves, k):
+    for _ in range(k):
+        moves = move_to_button(moves, directional)
+    return move_to_button(moves, numeric)
 
 # pt1
 def get_moves(A, code) -> List[str]:
@@ -66,7 +78,6 @@ def get_moves(A, code) -> List[str]:
         x, y = tx, ty
     return move_options
 
-
 if input('Type "y" to compute Part 1: ') == 'y':
     complexity = 0
     for code in codes:
@@ -77,71 +88,46 @@ if input('Type "y" to compute Part 1: ') == 'y':
         complexity += min(map(min, moves)) * int(code[:-1])
     print(f'Part 1: Complexity = {complexity}')
 
-
 # pt2
-codes = ['029A', '980A', '179A', '456A', '379A'] # example
-# 231564 pt 1 answer
-def getbest(mpairs : Dict[str, int], first : str) -> Dict[str, int]:
-    print(f'BEFORE:', mpairs)
-    directional = npa([
-    ['X', '^', 'A'],
-    ['<', 'v', '>']
-    ])
-    pair = {('A', '<') : 'v<<', ('A', '^') : '<', ('A', 'v') : 'v<',
-            ('A', '>') : 'v', ('^', 'A') : '>', ('^', '<') : 'v<',
-            ('^', '>') : 'v>', ('^', 'v') : 'v', ('<', 'v') : '>',
-            ('<', '^') : '>^', ('<', '>') : '>>', ('<', 'A') : '>>^',
-            ('v', '<') : '<', ('v', '>') : '>', ('v', '^') : '^',
-            ('v', 'A') : '^>', ('>', '<') : '<<', ('>', 'v') : '<',
-            ('>', 'A') : '^', ('>', '^') : '<^', ('^', 'v') : 'v',
-            ('^', '<') : 'v<', ('^', '>') : 'v>', ('^', 'A') : '>'}
-    # TODO A<->v, > <-> ^  /// don't need to?
-    mpairs[('A', first)] = mpairs.get(('A', first), 0) + 1
-    first = pair[('A', first)][0]
-    result = defaultdict(int)
-    for p in mpairs:
-        if p in pair:
-            adding = pair[p]
-            if len(adding) == 1:
-                t = ('A', adding)
-                result[t] += mpairs[p]
-                t = (adding, 'A')
-                result[t] += mpairs[p]
-            elif len(adding) == 2:
-                t = ('A', adding[0])
-                result[t] += mpairs[p]
-                result[adding] += mpairs[p]
-                t = (adding[1], 'A')
-                result[t] += mpairs[p]
-            else:
-                t = ('A', adding[0])
-                result[t] += mpairs[p]
-                result[adding[:2]] += mpairs[p]
-                result[adding[1:3]] += mpairs[p]
-                t = (adding[-1], 'A')
-                result[t] += mpairs[p]
-        # result['A'] = result.get('A', 0) + mpairs[p]
-    print('AFTER:', result)
-    return result, first
-
-k = 2
-res = []
-for code in codes[:1]:
-    movesL = get_moves(numeric, code)
-    best = 10e12
-    for moves in movesL:
-        print('MOVES:', moves)
-        move_pairs = defaultdict(int)
-        first = moves[0]
+def shortest_moves_bf(moves, k) -> int:
+    """ Computes shortest move string for a given code and number of robots """
+    for _ in range(k):
+        move_pairs = [('A', moves[0])]
         for i in range(len(moves)-1):
             t = (moves[i], moves[i+1])
-            move_pairs[t] += 1
-        for _ in range(k):
-            move_pairs, first = getbest(move_pairs, moves[0])
-        best = min(best, 1 + sum(move_pairs.values()))
-        break
-    res.append(best)
+            move_pairs.append(t)
+        moves = "A".join(lmap(lambda x : pair_map[x], move_pairs)) + 'A'
+        print(moves)
+    return len(moves)
 
-complexity = 0
-for c, code in zip(res, codes):
-    complexity += c * int(code[:-1])
+def shortest_move_dp(moves, k) -> int:
+    move_pairs = Counter(it.pairwise(moves))
+    move_pairs['A', moves[0]] += 1
+    for _ in range(k):
+        new_pairs = defaultdict(int)
+        for p in move_pairs:
+            ct = move_pairs[p]
+            adding = 'A' + pair_map[p] + 'A'
+            for v in it.pairwise(adding):
+                new_pairs[v] += ct
+        move_pairs = new_pairs
+    return sum(move_pairs.values())
+    
+
+def best_moves(code, k, best_move_f=shortest_move_dp):
+    """
+        Computes size of shortest move string for a given code and number of robots
+        Stores pairs of moves in move string as count of pairs of moves
+    """
+    movesL = get_moves(numeric, code)
+    best = np.inf
+    for moves in movesL:
+        shortest = best_move_f(moves, k)
+        best = min(best, shortest)
+    return best
+
+complexity2 = 0
+for code in codes:
+    complexity2 += best_moves(code, 25) * int(code[:-1])
+
+print(f'Part 2: Complexity = {complexity2}')
