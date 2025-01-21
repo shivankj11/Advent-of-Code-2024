@@ -15,6 +15,4 @@ ct = 0
 for key, lock in it.product(keys, locks):
     ct += all(k >= l for k,l in zip(key, lock))
 
-print('Part 1:', ct)
-
-# pt2
+print('Answer:', ct)
