@@ -23,29 +23,32 @@ pair_map = {
         ('^', '>') : 'v>', ('^', 'A') : '>', ('v', 'v') : '',
         ('A', 'A') : '', ('^', '^') : '', ('<', '<') : '', ('>', '>') : '',    
 }
-def move_to_button(moves : Iterable[str], keypad : np.ndarray[str]) -> str:
-    """
-        INPUTS:
-            moves : Sequence of strings representing moves on the directional keypad
-            keypad : 2D array representing the target keypad layout
-        
-        RETURNS:
-            A string of the buttons pressed on given keypad by the given sequence of moves on the directional keypad
-    """
-    x, y = arr_find(keypad)('A')
-    buttons = []
-    for move in moves:
-        match move:
-            case '<': y -= 1
-            case '>': y += 1
-            case 'v': x += 1
-            case '^': x -= 1
-            case _: buttons.append(keypad[x, y])
-    return buttons
 
 def verify(moves, k):
+    """ Returns output moves from applying moves to series of k robots """
+    def move_to_button(moves : Iterable[str], keypad : np.ndarray[str]) -> str:
+        """
+            INPUTS:
+                moves : Sequence of strings representing moves on the directional keypad
+                keypad : 2D array representing the target keypad layout
+            
+            RETURNS:
+                A string of the buttons pressed on given keypad by the given sequence of moves on the directional keypad
+        """
+        x, y = arr_find(keypad)('A')
+        buttons = []
+        for move in moves:
+            match move:
+                case '<': y -= 1
+                case '>': y += 1
+                case 'v': x += 1
+                case '^': x -= 1
+                case _: buttons.append(keypad[x, y])
+        return buttons
+    
     for _ in range(k):
         moves = move_to_button(moves, directional)
+
     return move_to_button(moves, numeric)
 
 # pt1
@@ -68,6 +71,7 @@ def get_moves(A, code) -> List[str]:
         elif ty > y:
             res += get_move_opts(x, y+1, tx, ty, [v + '>' for v in L])
         return res
+
     find = arr_find(A)
     x, y = find('A')
     move_options = ['']
@@ -86,7 +90,7 @@ if input('Type "y" to compute Part 1: ') == 'y':
         r2_min = min(map(len, r2))
         moves = [map(len, get_moves(directional, v)) for v in r2 if len(v) == r2_min]
         complexity += min(map(min, moves)) * int(code[:-1])
-    print(f'Part 1: Complexity = {complexity}')
+    print(f'Part 1: {complexity}')
 
 # pt2
 def shortest_moves_bf(moves, k) -> int:
@@ -97,7 +101,6 @@ def shortest_moves_bf(moves, k) -> int:
             t = (moves[i], moves[i+1])
             move_pairs.append(t)
         moves = "A".join(lmap(lambda x : pair_map[x], move_pairs)) + 'A'
-        print(moves)
     return len(moves)
 
 def shortest_move_dp(moves, k) -> int:
@@ -112,11 +115,11 @@ def shortest_move_dp(moves, k) -> int:
                 new_pairs[v] += ct
         move_pairs = new_pairs
     return sum(move_pairs.values())
-    
 
-def best_moves(code, k, best_move_f=shortest_move_dp):
+def best_moves(code, k=25, best_move_f=shortest_move_dp):
     """
         Computes size of shortest move string for a given code and number of robots
+        
         Stores pairs of moves in move string as count of pairs of moves
     """
     movesL = get_moves(numeric, code)
@@ -126,8 +129,5 @@ def best_moves(code, k, best_move_f=shortest_move_dp):
         best = min(best, shortest)
     return best
 
-complexity2 = 0
-for code in codes:
-    complexity2 += best_moves(code, 25) * int(code[:-1])
-
-print(f'Part 2: Complexity = {complexity2}')
+complexity2 = sum(best_moves(code) * int(code[:-1]) for code in codes)
+print(f'Part 2: {complexity2}')

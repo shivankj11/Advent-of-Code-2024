@@ -3,10 +3,9 @@ from helpers import *
 with open('day20_input.txt', 'r') as f:
     text = f.read().strip()
 
-A = npa(lmap(list, text.split('\n')))
-find = arr_find(A)
-start = find('S')
-end = find('E')
+A = npa(lmap(list, text.splitlines()))
+start = find(A, 'S', first=True)
+end = find(A, 'E', first=True)
 A[start] = '.'
 A[end] = '.'
 bounds = arr_bounds(A)
@@ -25,13 +24,12 @@ def search(A):
     return dist
 
 base = search(A)
-walls = npa(np.where(A == '#')).T
+walls = find(A, '#')
 if input('Type "y" to compute part 1 result: ') == 'y':
     ct = 0
     for cheat in walls:
         A[*cheat] = '.'
-        if base - search(A) >= 100:
-            ct += 1
+        ct += base - search(A) >= 100
         A[*cheat] = '#'
     print(f'Part 1: {ct} cheats with at least 100 picoseconds saved')
 
@@ -59,8 +57,7 @@ def ksec_cheats(k, cheat_len=20) -> int:
             x1, y1 = base_path[i]
             x2, y2 = base_path[j]
             grid_dist = abs(x2 - x1) + abs(y2 - y1)
-            if grid_dist <= cheat_len and j - i - grid_dist >= k:
-                cheats += 1
+            cheats += grid_dist <= cheat_len and j - i - grid_dist >= k
     return cheats
 
 print(f'Part 2: {ksec_cheats(100)} cheats with at least 100 picoseconds saved')

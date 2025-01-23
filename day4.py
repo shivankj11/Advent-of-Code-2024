@@ -4,47 +4,49 @@ with open('day4_input.txt', 'r') as f:
     text = f.read()
 
 A = npa(lmap(list, text.split('\n')))
-rows, cols = len(A), len(A[0])
+rows, cols = A.shape
+bounds = arr_bounds(A)
+
 
 # pt1
-def match(m, a, s) -> bool:
-    return A[m] == 'M' and A[a] == 'A' and A[s] == 'S'
-
 def search(idx : Tuple[int, int]) -> int:
-    i,j = idx
-    finds = 0
+    '''
+        Returns number of times 'MAS' was found in
+        A starting at position idx, assumes A[idx] = 'X'
+    '''
+    def match(pts) -> int:
+        if any(tuple(pt) not in bounds for pt in pts.T):
+            return 0
+        return ''.join(A[*pts]) == 'MAS'
+    
+    pts = npa([idx] * 3, dtype=int).T
+    offset = npa([1, 2, 3], dtype=int)
+    zero = np.zeros(3, dtype=int)
+
     # horizontal
-    if j + 3 < cols:
-        finds += match((i,j+1), (i,j+2), (i,j+3))
-    if j - 3 >= 0:
-        finds += match((i,j-1), (i,j-2), (i,j-3))
+    finds = match(pts + [zero, offset])
+    finds += match(pts - [zero, offset])
     # vertical
-    if i + 3 < rows:
-        finds += match((i+1,j), (i+2,j), (i+3,j))
-    if i - 3 >= 0:
-        finds += match((i-1,j), (i-2,j), (i-3,j))
+    finds += match(pts + [offset, zero])
+    finds += match(pts - [offset, zero])
     # top left to bot right diagonal
-    if i + 3 < rows and j + 3 < cols:
-        finds += match((i+1,j+1), (i+2,j+2), (i+3,j+3))
-    if i - 3 >= 0 and j - 3 >= 0:
-        finds += match((i-1,j-1), (i-2,j-2), (i-3,j-3))
+    finds += match(pts + [offset, offset])
+    finds += match(pts - [offset, offset])
     # other diagonal
-    if i + 3 < rows and j - 3 >= 0:
-        finds += match((i+1,j-1), (i+2,j-2), (i+3,j-3))
-    if i - 3 >= 0 and j + 3 < cols:
-        finds += match((i-1,j+1), (i-2,j+2), (i-3,j+3))
+    finds += match(pts + [-offset, offset])
+    finds += match(pts + [offset, -offset])
 
     return finds
 
-ct = sum(map(search, filter(lambda idx : A[idx] == 'X', mesh(rows, cols))))
-print(ct)
+print('Part 1:', sum(map(search, find(A, 'X'))))
 
 # pt2
-def search2(idx):
+def search2(idx) -> int:
     i, j = idx
-    diag1 = (A[i-1, j-1] == 'M' and A[i+1, j+1] == 'S') or (A[i-1, j-1] == 'S' and A[i+1, j+1] == 'M')
-    diag2 = (A[i-1, j+1] == 'M' and A[i+1, j-1] == 'S') or (A[i-1, j+1] == 'S' and A[i+1, j-1] == 'M')
-    return (diag1 and diag2)
+    if not (1 <= i < rows-1 and 1 <= j < cols-1):
+        return 0
+    diag1 = (A[i-1, j-1], A[i+1, j+1])
+    diag2 = (A[i-1, j+1], A[i+1, j-1])
+    return 'M' in diag1 and 'M' in diag2 and 'S' in diag1 and 'S' in diag2
 
-ct2 = sum(map(search2, filter(lambda idx : A[idx] == 'A', it.product(range(1, rows-1), range(1, cols-1)))))
-print(ct2)
+print('Part 2:', sum(map(search2, find(A, 'A'))))

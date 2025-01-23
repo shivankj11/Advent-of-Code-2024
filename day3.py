@@ -9,16 +9,15 @@ def get_res(text):
     res = re.findall(pattern, text)
     return sum(int(x) * int(y) for x,y in map(lambda s : s.split(','), res))
 
-print(get_res(text))
+print('Part 1:', get_res(text))
 
 # pt2
-text2 = text
-while text2.find("don't") != -1:
-    idx = text2.find("don't()")
-    enable = text2.find("do()", idx)
+while text.find("don't") != -1:
+    idx = text.find("don't()")
+    enable = text.find("do()", idx)
     if enable != -1:
-        text2 = text2[:idx] + text2[enable:]
+        text = text[:idx] + text[enable:]
     else:
-        text2 = text2[:idx]
+        text = text[:idx]
 
-print(get_res(text2))
+print('Part 2:', get_res(text))

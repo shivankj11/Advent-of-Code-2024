@@ -3,9 +3,8 @@ from helpers import *
 with open('day23_input.txt', 'r') as f:
     text = f.read().strip()
 
-pairs = [s.split('-') for s in text.splitlines()]
 connections = defaultdict(set)
-for a,b in pairs:
+for a,b in (s.split('-') for s in text.splitlines()):
     connections[a].add(b)
     connections[b].add(a)
 

@@ -7,16 +7,20 @@ nums = lmap(int, text.splitlines())
 
 # pt1
 def sim(n):
-    for _ in range(2000):
-        n ^= n * 64
-        n %= 16777216
-        n ^= n // 32
-        n %= 16777216
-        n ^= n * 2048
-        n %= 16777216
+    n ^= n * 64
+    n %= 16777216
+    n ^= n // 32
+    n %= 16777216
+    n ^= n * 2048
+    n %= 16777216
     return n
 
-print(f'Part 1:', sum(map(sim, nums)))
+def loop(n):
+    for _ in range(2000):
+        n = sim(n)
+    return n
+
+print(f'Part 1:', sum(map(loop, nums)))
 
 
 # pt2
@@ -26,12 +30,7 @@ def get_seqs(nums) -> np.ndarray:
         n = nums[i]
         A[i,0] = n % 10
         for j in range(1, 2001):
-            n ^= n * 64
-            n %= 16777216
-            n ^= n // 32
-            n %= 16777216
-            n ^= n * 2048
-            n %= 16777216
+            n = sim(n)
             A[i,j] = n % 10
     changes = np.diff(A)
     seqs = {tuple(v) for L in changes for v in sw(L, 4)}

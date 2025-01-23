@@ -17,6 +17,8 @@ npa = np.asarray
 
 lmap = lambda f,L : list(map(f, L))
 
+lmap_nested = lambda f,L : lmap(partial(lmap, f), L)
+
 identity = lambda x : x
 
 mesh = lambda *a : it.product(*map(range, a))
@@ -40,21 +42,43 @@ def arr_border_2d(arr : np.ndarray) -> Set[Tuple]:
     f = lambda pt : 0 < pt[0] < rows-1 and 0 < pt[1] < cols-1
     return set(it.filterfalse(f, arr_bounds(arr)))
 
+def find(arr : np.ndarray, val, first=False, inv=False) -> Union[Tuple[int], np.ndarray]:
+    """
+        Returns occurrences of val in arr
+
+        PARAMS
+            arr : np.ndarray = array in which to search
+            val : Any = value to search for
+            first : bool = only return the first occurrence, assumes
+                val exists in arr
+            inv : bool = search instead for elements t in arr s.t. t != val
+        
+        RETURNS
+            Either a tuple with the first location of search hit or a
+            np.ndarray of all search hits with shape = (hits, dimensions)
+    """
+    hits = npa(np.where((op.neq if inv else op.eq)(arr, val))).T
+
+    if first:
+        return tuple(hits[0])
+
+    return hits
+
 def arr_find(arr : np.ndarray) -> Callable:
-    def find(e):
-        return tuple(npa(np.where(arr == e)).T[0])
-    return find
+    ''' Returns function that returns idx of first occurence of item in arr '''
+    return partial(find, arr, first=True)
 
 def grid_step(x : int, y : int, direction : int):
     """ Direction 0 = E, 1 = S, 2 = W, 3 = N """
-    if direction == 0:
-        return (x, y+1)
-    elif direction == 1:
-        return (x+1, y)
-    elif direction == 2:
-        return (x, y-1)
-    else:
-        return (x-1, y)
+    match direction:
+        case 0:
+            return (x, y+1)
+        case 1:
+            return (x+1, y)
+        case 2:
+            return (x, y-1)
+        case _:
+            return (x-1, y)
 
 @contextmanager
 def suppress_stdout():
@@ -68,7 +92,7 @@ def suppress_stdout():
 
 def find_seq(A, seq):
     """ Returns indices of seq in A"""
-    return np.where(reduce(op.and_, ((np.concatenate([(A == s)[i:], np.zeros(i, dtype=np.uint8)],dtype=np.uint8)) for i,s in enumerate(seq))))[0]
+    return np.where(reduce(op.and_, ((np.concatenate([(A == s)[i:], np.zeros(i, dtype=int)], dtype=int)) for i,s in enumerate(seq))))[0]
 
 def kosaraju(adj_list : Dict[Any, List[Any]])-> List[List[Any]]:
     """ Returns list of strongly connected components for a directed graph
@@ -92,10 +116,7 @@ def kosaraju(adj_list : Dict[Any, List[Any]])-> List[List[Any]]:
             L.append(v)
             stack.extend(adj_list[v])
     
-    # Get reverse order traversal
-    L = L[::-1]
-
-    # Find SCCS
+    # Find SCCS in reverse DFS order
     def assign(v, group : List, assigned : Set):
         if v in assigned:
             return group, assigned
@@ -112,11 +133,11 @@ def kosaraju(adj_list : Dict[Any, List[Any]])-> List[List[Any]]:
 
     sccs = []
     assigned = set()
-    for v in L:
+    for v in L[::-1]:
         group, assigned = assign(v, [], assigned)
         sccs.append(group)
     
-    return [scc for scc in sccs if scc]
+    return list(filter(identity, sccs))
 
 def bors_kerbosch(R, P, X, G, C):
         """ Returns maximal cliques of G """

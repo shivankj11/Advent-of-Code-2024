@@ -3,61 +3,49 @@ from helpers import *
 with open('day9_input.txt', 'r') as f:
     text = f.read().strip()
 
-L = lmap(int, text)
-L = lmap(lambda i : L[i] if i % 2 else (L[i], i // 2), range(len(L)))
+L = list(enumerate(lmap(int, text)))
 
 # pt1
-def get_arr():
+def get_mem():
     space = []
-    for i in range(len(L)):
-        if i % 2:
-            for _ in range(L[i]):
-                space.append(-1)
-        else:
-            n, idx = L[i]
-            for _ in range(n):
-                space.append(idx)
+    for i,n in L:
+        val = -1 if i % 2 else i // 2
+        for _ in range(n):
+            space.append(val)
     i = 0
     while i < len(space):
         if space[i] == -1:
-            while space[-1] == -1:
-                if i >= len(space) - 1:
-                    space.pop()
-                    return space
+            while space[-1] == -1 and i < len(space)-1:
                 space.pop()
-            n = space[-1]
-            space[i] = n
+            space[i] = space[-1]
             space.pop()
         i += 1
     return space
 
-r = get_arr()
-print(sum(x * y for x,y in zip(r, range(len(r)))))
+print('Part 1:', sum(x * y for x,y in enumerate(get_mem())))
 
 # pt2
-j = len(L) - 1
-while j >= 0:
-    if type(L[j]) is int:
+def get_mem2():
+    j = len(L)
+    while j > 0:
         j -= 1
-        continue
-    n, idx = L[j]
-    for i in range(1, j):
-        if type(L[i]) is int and L[i] >= n:
-            L[j] = (n, 0)
-            if n < L[i]:
-                L.insert(i+1, L[i] - n)
-            L[i] = (n, idx)
-            break
-    j -= 1
-
-r2 = []
-for v in L:
-    if type(v) is int:
-        for _ in range(v):
-            r2.append(0)
-    else:
-        n, idx = v
+        idx, n = L[j]
+        if idx % 2:
+            continue
+        for i in range(1, j):
+            idx2, n2 = L[i]
+            if idx2 % 2 and n2 >= n:
+                # push L[j] mem into L[i] if space
+                L[j] = (0, n)
+                L[i] = (idx, n)
+                if n < n2:
+                    L.insert(i+1, (-1, n2 - n))
+                break
+    spaces = []
+    for idx, n in L:
+        val = 0 if idx % 2 else idx // 2
         for _ in range(n):
-            r2.append(idx)
+            spaces.append(val)
+    return spaces
 
-print(sum(x * y for x,y in zip(r2, range(len(r2)))))
+print('Part 2:', sum(x * y for x,y in enumerate(get_mem2())))

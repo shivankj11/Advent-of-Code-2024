@@ -3,20 +3,20 @@ from helpers import *
 with open('day16_input.txt', 'r') as f:
     text = f.read().strip()
 
-A = npa(lmap(partial(lmap, identity), text.split('\n')))
+A = npa(lmap(list, text.splitlines()))
 bounds = arr_bounds(A)
 start = arr_find(A)('S')
+
 # pt1
 def search(start) -> int:
     """
-    Direction 0 = E, 1 = S, 2 = W, 3 = N
     Returns score of best path
     """
-    q = [(0, (start, 0))] # min heap
+    q = [(0, (start, 0))] # minheap
     seen = {(start, 0)}
     while q:
         prio, pos = heappop(q)
-        pt, direction = pos
+        pt, direction = pos # Direction 0 = E, 1 = S, 2 = W, 3 = N
         x, y = pt
         if A[pt] == 'E':
             return prio
@@ -36,12 +36,11 @@ def search(start) -> int:
 
     raise Exception("No path found from S->E")
 
-print(search(start))
+print('Part 1:', search(start))
 
 # pt2
 def search2(start) -> int:
     """
-    Direction 0 = E, 1 = S, 2 = W, 3 = N
     Returns number of tiles on all best paths
     """
     best_score = search(start)
@@ -52,7 +51,7 @@ def search2(start) -> int:
         prio, pos, path = heappop(q)
         if prio > best_score or pos in seen and seen[pos] < prio:
             continue
-        pt, direction = pos
+        pt, direction = pos # Direction 0 = E, 1 = S, 2 = W, 3 = N
         x, y = pt
         if A[pt] == 'E':
             for tile,_ in path:
@@ -83,4 +82,4 @@ def search2(start) -> int:
 
     return len(tiles_on_best)
 
-print(search2(start))
+print('Part 2:', search2(start))

@@ -3,15 +3,15 @@ from helpers import *
 with open('day12_input.txt', 'r') as f:
     text = f.read()
 
-def get_price(text, price_fn : Callable) -> int:
+def get_price(text : str, price_fn : Callable) -> int:
     """ Returns price of given input """
     chars = set(text)
     chars.remove('\n')
-    A = npa(lmap(list, text.split('\n')))
+    A = npa(lmap(list, text.splitlines()))
     bounds = arr_bounds(A)
     price = 0
     for c in chars:
-        occurences = lmap(tuple, npa(np.where(A == c)).T)
+        occurences = lmap(tuple, find(A, c))
         seen = set()
         for pt in occurences:
             if pt in seen:
@@ -38,31 +38,12 @@ def price1(pts, A):
     perim = 4 * area
     bounds = arr_bounds(A)
     for pt in pts:
-        perim -= sum(1 for v in grid_neighbors(pt) if v in bounds and A[v] == A[pt])
+        perim -= sum(v in bounds and A[v] == A[pt] for v in grid_neighbors(pt))
     return area * perim
 
-def test1():
-    ex1 = """AAAA\nBBCD\nBBCC\nEEEC"""
-    ex2 = """OOOOO\nOXOXO\nOOOOO\nOXOXO\nOOOOO"""
-    ex3 = """RRRRIICCFF\nRRRRIICCCF\nVVRRRCCFFF\nVVRCCCJFFF\nVVVVCJJCFE\nVVIVCCJJEE\nVVIIICJJEE\nMIIIIIJJEE\nMIIISIJEEE\nMMMISSJEEE"""
-
-    print('Testing Part 1...', end='')
-    with suppress_stdout():
-        result = get_price(ex1, price1)
-    assert(result == 140)
-    with suppress_stdout():
-        result = get_price(ex2, price1)
-    assert(result == 772)
-    with suppress_stdout():
-        result = get_price(ex3, price1)
-    assert(result == 1930)
-    print('Part 1 Correct')
-
-test1()
-print(f'Part 1 Answer: {get_price(text, price1)}')
+print(f'Part 1: {get_price(text, price1)}')
 
 # pt2
-
 def price2(pts, A):
     area = len(pts)
     bounds = arr_bounds(A)
@@ -73,8 +54,7 @@ def price2(pts, A):
         else:
             return (x,y) not in bounds or (x-1,y) not in bounds or A[x,y] != A[x-1,y]
     all_border : Dict[Tuple, int] = {}
-    for pt in pts:
-        x,y = pt
+    for x,y in pts:
         all_border[(x,y,0)] = 1
         all_border[(x+1,y,0)] = 1
         all_border[(x,y,1)] = 1
@@ -106,6 +86,27 @@ def price2(pts, A):
                         break
     return area * len(region_borders)
 
+print(f'Part 2: {get_price(text, price2)}')
+
+
+# Unit Tests
+def test1():
+    ex1 = """AAAA\nBBCD\nBBCC\nEEEC"""
+    ex2 = """OOOOO\nOXOXO\nOOOOO\nOXOXO\nOOOOO"""
+    ex3 = """RRRRIICCFF\nRRRRIICCCF\nVVRRRCCFFF\nVVRCCCJFFF\nVVVVCJJCFE\nVVIVCCJJEE\nVVIIICJJEE\nMIIIIIJJEE\nMIIISIJEEE\nMMMISSJEEE"""
+
+    print('Testing Part 1...', end='')
+    with suppress_stdout():
+        result = get_price(ex1, price1)
+    assert(result == 140)
+    with suppress_stdout():
+        result = get_price(ex2, price1)
+    assert(result == 772)
+    with suppress_stdout():
+        result = get_price(ex3, price1)
+    assert(result == 1930)
+    print('Part 1 Correct')
+
 def test2():
     ex1 = """AAAA\nBBCD\nBBCC\nEEEC"""
     ex2 = """OOOOO\nOXOXO\nOOOOO\nOXOXO\nOOOOO"""
@@ -130,6 +131,3 @@ def test2():
         result = get_price(ex5, price2)
     assert(result == 368)
     print('Part 2 Correct')
-
-test2()
-print(f'Part 2 Answer: {get_price(text, price2)}')

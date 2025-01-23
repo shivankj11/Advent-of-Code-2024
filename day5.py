@@ -4,8 +4,8 @@ with open('day5_input.txt', 'r') as f:
     text = f.read()
 
 rules, updates = text.split('\n\n')
-rules = [lmap(int, line.split('|')) for line in rules.split('\n')]
-updates = [lmap(int, line.split(',')) for line in updates.split('\n')]
+rules = [lmap(int, line.split('|')) for line in rules.splitlines()]
+updates = [lmap(int, line.split(',')) for line in updates.splitlines()]
 
 def wrong(line : List[int]) -> bool:
     for before, after in rules:
@@ -15,8 +15,7 @@ def wrong(line : List[int]) -> bool:
     return False
 
 # pt1
-res1 = sum(map(median, it.filterfalse(wrong, updates)))
-print(res1)
+print('Part 1:', sum(map(median, it.filterfalse(wrong, updates))))
 
 # pt2
 wrong_lines = list(filter(wrong, updates))
@@ -25,10 +24,9 @@ for line in wrong_lines:
         for before, after in rules:
             if before in line and after in line:
                 xidx, yidx = line.index(before), line.index(after)
-                if xidx > yidx:
+                if xidx > yidx: # swap
                     line[xidx] += line[yidx]
                     line[yidx] = line[xidx] - line[yidx]
                     line[xidx] -= line[yidx]
 
-res2 = sum(map(median, wrong_lines))
-print(res2)
+print('Part 2:', sum(map(median, wrong_lines)))

@@ -1,13 +1,14 @@
-with open('day1_input.txt', 'r') as f:
-    s = f.read()
+from helpers import *
 
-L = [v.split('   ') for v in s.strip().split('\n')]
-L1 = [int(x[0]) for x in L]
-L2 = [int(x[1]) for x in L]
-d = {}
-for n in L2:
-    d[n] = d.get(n, 0) + 1
-tot = 0
-for n in L1:
-    tot += d[n] * n if n in d else 0
-print(tot)
+with open('day1_input.txt', 'r') as f:
+    text = f.read()
+
+L = npa(lmap(lambda v : lmap(int, v.split('   ')), text.splitlines()))
+
+# pt 1
+L.sort(axis=0)
+print('Part 1:', np.sum(np.abs(np.diff(L, 1))))
+
+# pt 2
+cts = Counter(L[:,1])
+print('Part 2:', sum(cts[n] * n for n in L[:,0]))

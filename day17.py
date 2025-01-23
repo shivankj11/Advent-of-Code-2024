@@ -16,15 +16,12 @@ def get_output(A, B, C, program) -> List[int]:
                 case 5: operand = B
                 case 6: operand = C
         match instruction:
-            case 0: A = A // (2 ** operand)
-            case 1: B = B ^ operand
+            case 0: A //= (2 ** operand)
+            case 1: B ^= operand
             case 2: B = operand % 8
-            case 3:
-                if A != 0:
-                    i = operand - 2
-            case 4: B = B ^ C
-            case 5:
-                output.append(operand % 8)
+            case 3: i = operand - 2 if A else i
+            case 4: B ^= C
+            case 5: output.append(operand % 8)
             case 6: B = A // (2 ** operand)
             case 7: C = A // (2 ** operand)
         i += 2
@@ -35,8 +32,8 @@ print('Part 1:', ",".join(map(str, get_output(A, B, C, program))))
 # pt2
 def mka(program) -> int:
     """ Greedy algorithm on 3-bit groups of A
-        + ability to backtrack since A can increase by
-        more than 0b111.
+        + Ability to backtrack since A can increase by
+        more than 0b111 for one program output
     """
     A = 0
     for i in range(len(program)):
@@ -48,7 +45,7 @@ def mka(program) -> int:
 print('Part 2:', mka(program))
 
 
-# Tries
+# Previous tries
 def print_output(A) -> List[int]:
     output = []
     B, C = 0, 0
@@ -71,6 +68,7 @@ def print_output(A) -> List[int]:
         # 6) Chop last 3 bits of A
         A >>= 3
     return output
+
 class Testing():
     p1 = [0,3,5,4,3,0]
 

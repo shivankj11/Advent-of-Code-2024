@@ -1,11 +1,11 @@
 from helpers import *
 
 with open('day19_input.txt', 'r') as f:
-    text = f.read()
+    text = f.read().strip()
 
-patterns, designs = text.strip().split('\n\n')
+patterns, designs = text.split('\n\n')
 patterns = set(patterns.split(', '))
-designs = designs.split('\n')
+designs = designs.splitlines()
 
 # pt1
 res1 = 0
@@ -18,7 +18,7 @@ for design in designs:
                 break
     res1 += len(design) in f
 
-print(res1)
+print('Part 1:', res1)
 
 # pt2
 res2 = 0
@@ -30,4 +30,4 @@ for design in designs:
                 f[j] = f.get(j, 0) + f[i]
     res2 += f.get(len(design), 0)
 
-print(res2)
+print('Part 2:', res2)

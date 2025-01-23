@@ -8,16 +8,15 @@ vals = {n : int(v) for n,v in [line.split(': ') for line in presets]}
 instructions = []
 for line in operations:
     lhs, out = line.split(' -> ')
-    a, op_str, b = lhs.split(' ')
+    a, op_str, b = lhs.split()
     match op_str:
         case 'AND': operation = op.and_
         case 'OR': operation = op.or_
         case 'XOR': operation = op.xor
     instructions.append((operation, a, b, out))
 
-
 # pt1
-calc_var = lambda c, V : sum(V[v] << int(v[1:]) for v in V if v.startswith(c))
+calc_var = lambda c,V : sum(V[v] << int(v[1:]) for v in V if v.startswith(c))
 
 def get_vals(instructions, vals):
     I, V = deepcopy(instructions), deepcopy(vals)
@@ -30,7 +29,6 @@ def get_vals(instructions, vals):
     return V
 
 print('Part 1:', calc_var('z', get_vals(instructions, vals)))
-
 
 # pt2
 def test_cases(vals) -> List[Dict]:

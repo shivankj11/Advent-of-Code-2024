@@ -16,11 +16,12 @@ def bfs(neighbor_fn, pt) -> int:
         q = list(filter(lambda pt : pt in bounds and A[pt] == curr, neighbors))
     return len(q)
 
-collect = lambda nfn : sum(map(partial(bfs, nfn), filter(lambda x : not A[*x], mesh(rows, cols))))
+collect = lambda nfn : sum(map(partial(bfs, nfn), find(A, 0)))
+
 # pt1: sum of # 9 reachable for all 0s
-res1 = collect(lambda q : reduce(lambda x, y : x.union(y), lmap(grid_neighbors, q), set()))
-print(f'Pt1 Result: {res1}\n')
+res1 = collect(lambda q : reduce(set.union, lmap(grid_neighbors, q), set()))
+print('Part 1:', res1)
 
 # pt2: sum of # distinct paths 0->9 for all 0s
 res2 = collect(lambda q : reduce(op.add, lmap(grid_neighbors, q), []))
-print(f'Pt2 Result: {res2}\n')
+print('Part 2:', res2)
